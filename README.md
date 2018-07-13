@@ -1,1 +1,3 @@
 # Automatas
+
+Colección de autómatas
