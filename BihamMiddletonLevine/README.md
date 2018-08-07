@@ -101,3 +101,15 @@ optional arguments:
       -fps FPS, --frame-per-seconds FPS
 
                             frames por segundo la simulacion corre automaticamente
+                            
+   
+## Pruebas:
+
+python biham_milddleton_levine.py --street-color black -bc WHITE -cw 20 -ch 20 -mw 30 -mh 30 --car-color-type-one yellow -c2 red
+
+![](https://github.com/Luispapiernik/Automatas/blob/master/BihamMiddletonLevine/Images/prueba1.png)
+
+
+python biham_milddleton_levine.py -cw 4 -ch 4 --separation-between-cell 0 --width 100 --height 100 -n1 2000 -n2 2000
+
+![](https://github.com/Luispapiernik/Automatas/blob/master/BihamMiddletonLevine/Images/prueba2.png)
