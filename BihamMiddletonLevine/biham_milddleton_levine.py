@@ -140,16 +140,17 @@ Los colores disponibles son:
                         metavar='COLOR', default='BLACK',
                         choices=COLORS.keys(),
                         help='color de fondo, es el mismo que el de la margen')
-    parser.add_argument('-sc', '--street-color', type=str,
+    parser.add_argument('-sc', '--street-color', type=lambda x: x.upper(),
                         metavar='COLOR', default='WHITE',
                         choices=COLORS.keys(),
                         help='color de fondo de la calle')
-    parser.add_argument('-c1', '--car-color-type-one', type=str,
-                        metavar='COLOR', default='RED', choices=COLORS.keys(),
-                        help='color del carro de tipo 1', dest='color1')
-    parser.add_argument('-c2', '--car-color-type-two', type=str,
-                        metavar='COLOR', default='GREEN',
-                        choices=COLORS.keys(), dest='color2',
+    parser.add_argument('-c1', '--car-color-type-one',
+                        type=lambda x: x.upper(), metavar='COLOR',
+                        default='RED', choices=COLORS.keys(), dest='color1',
+                        help='color del carro de tipo 1')
+    parser.add_argument('-c2', '--car-color-type-two',
+                        type=lambda x: x.upper(), metavar='COLOR',
+                        default='GREEN', choices=COLORS.keys(), dest='color2',
                         help='color del carro de tipo 2')
     parser.add_argument('-m', '--manual', action='store_true',
                         help='''si este argumento es pasado la simulaion se
