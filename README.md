@@ -8,3 +8,8 @@ Colección de autómatas
 
 ![](https://github.com/Luispapiernik/Automatas/blob/master/BihamMiddletonLevine/Images/biham1.png)
 
+
+## Game of Life
+
+![](https://github.com/Luispapiernik/Automatas/blob/master/GameOfLife/Images/gameoflife.png)
+
