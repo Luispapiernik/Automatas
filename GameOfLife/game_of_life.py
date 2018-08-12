@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from CellGraph import System, CellGraph, COLORS
+from cellgraph import System, CellGraph, COLORS
 from random import randint
 
 
@@ -8,14 +8,14 @@ class GameOfLife(System):
 
     def __init__(self, name, width, height, colors):
         matrix = [[0] * width for i in range(height)]
-        super(GameOfLife, self).__init__(matrix, name, colors)
+        super(GameOfLife, self).__init__(matrix, colors, name)
         self.alives = 0
 
     def getCaption(self):
         return 'Alives: %s' % self.alives
 
-    def mouseButtonDown(self, pos):
-        if 0 <= pos[0] < 50 and 0 <= pos[1] < 50:
+    def mouseButtonDown(self, pos, _):
+        if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
             if not self.matrix[pos[1]][pos[0]]:
                 self.alives += 1
                 self.matrix[pos[1]][pos[0]] = 1
@@ -127,11 +127,11 @@ Los colores disponibles son:
                         choices=COLORS.keys(),
                         help='''color de fondo, es el mismo que el de la
                         margen y la separacion entre celdas''')
-    parser.add_argument('-c1', '--color-alive', type=str,
+    parser.add_argument('-c1', '--color-alive', type=lambda x: x.upper(),
                         metavar='COLOR', default='BLACK',
                         choices=COLORS.keys(),
                         help='color de celulas vivas')
-    parser.add_argument('-c2', '--color-death', type=str,
+    parser.add_argument('-c2', '--color-death', type=lambda x: x.upper(),
                         metavar='COLOR', default='WHITE',
                         choices=COLORS.keys(),
                         help='color celulas muertas')

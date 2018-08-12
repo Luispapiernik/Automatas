@@ -3,6 +3,8 @@ import pygame.locals as pl
 import pygame as p
 
 
+_events = None
+
 COLORS = {'WHITE': (255, 255, 255), 'BLACK': (0, 0, 0), 'CYAN': (0, 255, 255),
           'GREEN': (0, 255, 0), 'BLUE': (0, 0, 255), 'YELLOW': (255, 255, 0),
           'ORANGE': (255, 165, 0), 'MAGENTA': (255, 0, 255),
@@ -11,31 +13,51 @@ COLORS = {'WHITE': (255, 255, 255), 'BLACK': (0, 0, 0), 'CYAN': (0, 255, 255),
           'BROWN': (165, 42, 42), 'GOLDEN': (255, 215, 0)}
 
 
-class System(object):
-    """docstring for System"""
+def setEvents():
+    global _events
 
-    def __init__(self, matrix, name, colors):
-        self.name = name
+    _events = p.event.get()
+
+    return _events
+
+
+class System(object):
+    def __init__(self, matrix, colors, name='system'):
         self.width = len(matrix[0])
         self.height = len(matrix)
         self.colors = colors
         self.matrix = matrix
-
-    def mouseButtonDown(self, event):
-        pass
-
-    def getCaption(self):
-        pass
+        self.name = name
 
     def getColor(self, i, j):
         return self.colors[self.matrix[i][j]]
 
+    def getCaption(self):
+        return self.name
+
+    def mouseButtonDown(self, pos, event):
+        """Se debe implementar en las clases que heredan"""
+        pass
+
+    def mouseButtonUp(self, pos, event):
+        """Se debe implementar en las clases que heredan"""
+        pass
+
+    def keyDown(self, event):
+        """Se debe implementar en las clases que heredan"""
+        pass
+
+    def keyUp(self, event):
+        """Se debe implementar en las clases que heredan"""
+        pass
+
     def update(self):
+        """Se debe implementar en las clases que heredan"""
         pass
 
 
 class CellGraph(object):
-    """Falta terminarlo"""
+    """docstring for CellGraph"""
 
     def __init__(self, system, margin_width=0, margin_height=0,
                  background_color='BLACK', cellwidth=5, cellheight=5, fps=60,
@@ -85,10 +107,43 @@ class CellGraph(object):
                 return name
             number += 1
 
+    def eventManager(self, screen):
+        quit = False
+        pause = False
+
+        for event in setEvents():
+            if event.type == p.QUIT:
+                quit = True
+                break
+            if event.type == p.KEYDOWN:
+                if event.key == pl.K_p or event.key == pl.K_SPACE:
+                    pause = True
+                if event.key == pl.K_q:
+                    quit = True
+                if event.key == pl.K_s:
+                    p.image.save(screen, self.getName())
+                    print('Saved image')
+                self.system.keyDown(event)
+                self.reload(screen)
+            if event.type == p.MOUSEBUTTONDOWN:
+                self.system.mouseButtonDown(
+                    self.getPositionInMatrix(event.pos), event)
+                self.reload(screen)
+            if event.type == p.KEYUP:
+                self.system.keyUp(event)
+                self.reload(screen)
+            if event.type == p.MOUSEBUTTONUP:
+                self.system.mouseButtonUp(
+                    self.getPositionInMatrix(event.pos), event)
+                self.reload(screen)
+
+        return quit, pause
+
     def run(self, manual=False):
         p.display.init()
 
         screen = p.display.set_mode((self.width, self.height))
+        p.display.set_caption(self.system.getCaption())
 
         clock = p.time.Clock()
 
@@ -100,57 +155,33 @@ class CellGraph(object):
         while not quit and not manual:
             clock.tick(self.fps)
 
-            for event in p.event.get():
-                if event.type == p.QUIT:
-                    quit = True
-                    break
-                if event.type == p.KEYDOWN:
-                    if event.key == pl.K_p or event.key == pl.K_SPACE:
-                        pause = not pause
-                    if event.key == pl.K_q:
-                        quit = True
-                    if event.key == pl.K_s:
-                        p.image.save(screen, self.getName())
-                        print('Saved image')
-                if event.type == p.MOUSEBUTTONDOWN:
-                    self.system.mouseButtonDown(self.getPositionInMatrix(event.pos))
-                    self.reload(screen)
+            quit, temp = self.eventManager(screen)
+
+            if temp:
+                pause = not pause
 
             if not pause and not quit:
                 self.system.update()
-                self.draw(screen)
-                p.display.update()
-
-        update = False
+                self.reload(screen)
 
         while not quit and manual:
-            # event = p.event.wait()
             clock.tick(20)
 
-            for event in p.event.get():
-                if event.type == p.QUIT:
-                    quit = True
-
-                if event.type == p.KEYDOWN:
-                    if event.key == p.K_q:
-                        quit = True
-                    if event.key == pl.K_SPACE:
-                        update = True
-                    if event.key == pl.K_s:
-                        p.image.save(screen, self.getName())
-                        print('Saved image')
-                if event.type == p.MOUSEBUTTONDOWN:
-                    self.system.mouseButtonDown(self.getPositionInMatrix(event.pos))
-                    self.reload(screen)
+            quit, pause = self.eventManager(screen)
+            pause = not pause
 
             if p.key.get_pressed()[pl.K_SPACE]:
-                update = True
+                pause = False
 
-            if update and not quit:
-                update = False
+            if not pause and not quit:
+                pause = True
                 self.system.update()
-                self.draw(screen)
-                p.display.set_caption(self.system.getCaption())
-                p.display.update()
+                self.reload(screen)
 
-        p.quit()
+
+def test():
+    pass
+
+
+if __name__ == '__main__':
+    test()

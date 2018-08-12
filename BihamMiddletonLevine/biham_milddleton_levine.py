@@ -1,5 +1,5 @@
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
-from CellGraph import CellGraph, System, COLORS
+from cellgraph import CellGraph, System, COLORS
 from random import randint
 
 
@@ -13,10 +13,15 @@ class BihamLevine(System):
 
     def __init__(self, name, width, height, colors):
         matrix = [[0] * width for i in range(height)]
-        super(BihamLevine, self).__init__(matrix, name, colors)
+        super(BihamLevine, self).__init__(matrix, colors, name)
         self.width = width
         self.height = height
         self.turn = 0
+
+    def mouseButtonDown(self, pos, _):
+        if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
+            self.matrix[pos[1]][pos[0]] += 1
+            self.matrix[pos[1]][pos[0]] %= 3
 
     def putVerticalCar(self, number):
         ready = number
@@ -90,7 +95,9 @@ siguiente frame de simulacion mediante la pulsacion de la tecla SPACE y otro en
 el que se fija los frames por segundo, se puede pausar con la tecla p ademas se
 puede tomar una captura de pantalla con la tecla s. EN la simulacionLos se usan
 dos tipos de carros, los del tipo 1 son los que solo se mueven en direccion
-vertical y los de tipo 2 se mueven solo en direccion horizontal.
+vertical y los de tipo 2 se mueven solo en direccion horizontal. Se permite
+tambien agregar vehiculos presionando con el mouse la posicion a la que se
+desea agregar.
 
 Los colores disponibles son:
     - WHITE
