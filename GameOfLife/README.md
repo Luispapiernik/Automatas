@@ -4,8 +4,11 @@ Juego de la vida. El programa permite 2 modos de simulacion, el
 manual en el que se pasa al siguiente frame de simulacion mediante la pulsacion
 de la tecla SPACE y otro en el que se fija los frames por segundo, se puede
 pausar con la tecla p ademas se puede tomar una captura de pantalla con la
-tecla s. Se permite tambien agregar celulas vivas presionando con el mouse a la
-celula.
+tecla s, si se presiona la tecla c se limpia el tablero y si se presiona la
+tecla e la configuracion del tablero se guarda en un archivo de texto. Se
+permite tambien agregar celulas vivas presionando con el mouse a la celula. El
+programa tambien permite cargar configuraciones para el tablero desde un
+archivo de texto.
 
 Los colores disponibles son:
 
