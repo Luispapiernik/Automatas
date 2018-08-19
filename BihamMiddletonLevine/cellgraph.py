@@ -1,5 +1,5 @@
-from os.path import exists
 import pygame.locals as pl
+from os.path import exists
 import pygame as p
 
 
@@ -22,34 +22,81 @@ def setEvents():
 
 
 class System(object):
-    def __init__(self, matrix, colors, name='system'):
+    def __init__(self, matrix, colors, name='system', nullCell=0, clear=True,
+                 export=True, add=True):
         self.width = len(matrix[0])
         self.height = len(matrix)
+        self.nullCell = nullCell
         self.colors = colors
         self.matrix = matrix
         self.name = name
+        self.event = {'keydown': [], 'keyup': [], 'mousebuttondown': [],
+                      'mousebuttonup': []}
+        if clear:
+            self.event['keydown'].append(self.clear)
+        if export:
+            self.event['keydown'].append(self.export)
+        if add:
+            self.event['mousebuttondown'].append(self.add)
+
+    def getMatrixFromFile(self, filename):
+        matrix = []
+
+        with open(filename, 'r') as fichero:
+            for line in fichero:
+                matrix.append(list(map(int, line.replace('\n', ''))))
+
+        return matrix
 
     def getColor(self, i, j):
-        return self.colors[self.matrix[i][j]]
+        return self.colors.get(self.matrix[i][j], 'BLACK')
 
     def getCaption(self):
         return self.name
 
+    def getName(self, extention='png'):
+        number = 0
+        while True:
+            name = self.name + str(number) + '.' + extention
+            if not exists(name):
+                return name
+            number += 1
+
+    def clear(self, key):
+        """limpia el tablero"""
+        if key == 'c':
+            self.matrix = [[self.nullCell] *
+                           self.width for i in range(self.height)]
+
+    def export(self, key):
+        """exporta el tablero a un archivo txt"""
+        if key == 'e':
+            with open(self.getName('txt'), 'w') as fichero:
+                for line in self.matrix:
+                    fichero.write(''.join(list(map(str, line))) + '\n')
+            print('Text saved')
+
+    def add(self, pos, _):
+        """agrega celulas al tablero"""
+        if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
+            self.matrix[pos[1]][pos[0]] += 1
+            self.matrix[pos[1]][pos[0]] %= 3
+
     def mouseButtonDown(self, pos, event):
-        """Se debe implementar en las clases que heredan"""
-        pass
+        for function in self.event['mousebuttondown']:
+            function(pos, event)
 
     def mouseButtonUp(self, pos, event):
-        """Se debe implementar en las clases que heredan"""
-        pass
+        for function in self.event['mousebuttonup']:
+            function(pos, event)
 
-    def keyDown(self, event):
-        """Se debe implementar en las clases que heredan"""
-        pass
+    def keyDown(self, key):
+        for function in self.event['keydown']:
+            function(key)
 
-    def keyUp(self, event):
-        """Se debe implementar en las clases que heredan"""
-        pass
+    def keyUp(self, key):
+        for function in self.event['keyup']:
+            function(key)
 
     def update(self):
         """Se debe implementar en las clases que heredan"""
@@ -99,14 +146,6 @@ class CellGraph(object):
         p.display.set_caption(self.system.getCaption())
         p.display.update()
 
-    def getName(self):
-        number = 0
-        while True:
-            name = self.system.name + str(number) + '.png'
-            if not exists(name):
-                return name
-            number += 1
-
     def eventManager(self, screen):
         quit = False
         pause = False
@@ -121,9 +160,9 @@ class CellGraph(object):
                 if event.key == pl.K_q:
                     quit = True
                 if event.key == pl.K_s:
-                    p.image.save(screen, self.getName())
+                    p.image.save(screen, self.system.getName())
                     print('Saved image')
-                self.system.keyDown(event)
+                self.system.keyDown(p.key.name(event.key))
                 self.reload(screen)
             if event.type == p.MOUSEBUTTONDOWN:
                 self.system.mouseButtonDown(

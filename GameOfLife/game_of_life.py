@@ -6,13 +6,16 @@ from random import randint
 class GameOfLife(System):
     """docstring for GameOfLife"""
 
-    def __init__(self, name, width, height, colors):
-        matrix = [[0] * width for i in range(height)]
-        super(GameOfLife, self).__init__(matrix, colors, name)
-        self.alives = 0
+    def __init__(self, name, width, height, colors, filename=None):
+        if filename:
+            matrix = self.getMatrixFromFile(filename)
+        else:
+            matrix = [[0] * width for i in range(height)]
 
-    def getCaption(self):
-        return 'Alives: %s' % self.alives
+        super(GameOfLife, self).__init__(matrix, colors, name, add=False)
+
+        self.event['mousebuttondown'].append(self.mouseButtonDown)
+        self.alives = 0
 
     def mouseButtonDown(self, pos, _):
         if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
@@ -22,6 +25,9 @@ class GameOfLife(System):
             else:
                 self.alives -= 1
                 self.matrix[pos[1]][pos[0]] = 0
+
+    def getCaption(self):
+        return 'Alives: %s' % self.alives
 
     def putCellsAlives(self, alives):
         ready = alives
@@ -37,21 +43,21 @@ class GameOfLife(System):
     def countAliveNeighbor(self, i, j):
         alives = 0
 
-        if self.matrix[(i - 1) % self.width][(j - 1) % self.height]:
+        if self.matrix[(i - 1) % self.height][(j - 1) % self.width]:
             alives += 1
-        if self.matrix[(i - 1) % self.width][j]:
+        if self.matrix[(i - 1) % self.height][j]:
             alives += 1
-        if self.matrix[(i - 1) % self.width][(j + 1) % self.height]:
+        if self.matrix[(i - 1) % self.height][(j + 1) % self.width]:
             alives += 1
-        if self.matrix[i][(j - 1) % self.height]:
+        if self.matrix[i][(j - 1) % self.width]:
             alives += 1
-        if self.matrix[i][(j + 1) % self.height]:
+        if self.matrix[i][(j + 1) % self.width]:
             alives += 1
-        if self.matrix[(i + 1) % self.width][(j - 1) % self.height]:
+        if self.matrix[(i + 1) % self.height][(j - 1) % self.width]:
             alives += 1
-        if self.matrix[(i + 1) % self.width][j]:
+        if self.matrix[(i + 1) % self.height][j]:
             alives += 1
-        if self.matrix[(i + 1) % self.width][(j + 1) % self.height]:
+        if self.matrix[(i + 1) % self.height][(j + 1) % self.width]:
             alives += 1
 
         return alives
@@ -60,8 +66,8 @@ class GameOfLife(System):
         copy = [[0] * self.width for i in range(self.height)]
         self.alives = 0
 
-        for i in range(self.width):
-            for j in range(self.height):
+        for i in range(self.height):
+            for j in range(self.width):
                 alives = self.countAliveNeighbor(i, j)
 
                 if self.matrix[i][j] and (alives == 3 or alives == 2):
@@ -79,8 +85,12 @@ def main():
 manual en el que se pasa al siguiente frame de simulacion mediante la pulsacion
 de la tecla SPACE y otro en el que se fija los frames por segundo, se puede
 pausar con la tecla p ademas se puede tomar una captura de pantalla con la
-tecla s. Se permite tambien agregar celulas vivas presionando con el mouse a la
-celula.
+tecla s, si se presiona la tecla c se limpia el tablero y si se presiona la
+tecla e la configuracion del tablero se guarda en un archivo de texto. Se
+permite tambien agregar celulas vivas presionando con el mouse a la celula. El
+programa tambien permite cargar configuraciones para el tablero desde un
+archivo de texto.
+
 
 Los colores disponibles son:
     - WHITE
@@ -102,7 +112,10 @@ Los colores disponibles son:
     parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter,
                             epilog=epilog)
 
-    parser.add_argument('-f', '--filename', default='gameoflife',
+    parser.add_argument('-f', '--filename', default=None,
+                        help='''Archivo con la configuracion
+                        inicial del tablero''')
+    parser.add_argument('-o', '--output', default='gameoflife',
                         dest='name', help='''nombre con el que se guarda la
                         captura de pantalla(si se hace)''')
     parser.add_argument('-w', '--width', type=int, default=10,
@@ -147,7 +160,8 @@ Los colores disponibles son:
 
     colors = {1: args.color_alive, 0: args.color_death}
 
-    gameoflife = GameOfLife(args.name, args.width, args.height, colors)
+    gameoflife = GameOfLife(args.name, args.width, args.height, colors,
+                            filename=args.filename)
     gameoflife.putCellsAlives(args.alives)
 
     graph = CellGraph(gameoflife, cellwidth=args.cell_width, fps=args.fps,

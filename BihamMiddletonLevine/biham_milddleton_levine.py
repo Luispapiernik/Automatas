@@ -11,17 +11,15 @@ class BihamLevine(System):
        que solo se mueve en direccion vertical y el 2 indica que hay un carro
        que solo se mueve en direccion horizontal"""
 
-    def __init__(self, name, width, height, colors):
-        matrix = [[0] * width for i in range(height)]
-        super(BihamLevine, self).__init__(matrix, colors, name)
-        self.width = width
-        self.height = height
-        self.turn = 0
+    def __init__(self, name, width, height, colors, filename=None):
+        if filename:
+            matrix = self.getMatrixFromFile(filename)
+        else:
+            matrix = [[0] * width for i in range(height)]
 
-    def mouseButtonDown(self, pos, _):
-        if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
-            self.matrix[pos[1]][pos[0]] += 1
-            self.matrix[pos[1]][pos[0]] %= 3
+        super(BihamLevine, self).__init__(matrix, colors, name)
+
+        self.turn = 0
 
     def putVerticalCar(self, number):
         ready = number
@@ -93,11 +91,14 @@ def main():
 programa permite 2 modos de simulacion, el manual en el que se pasa al
 siguiente frame de simulacion mediante la pulsacion de la tecla SPACE y otro en
 el que se fija los frames por segundo, se puede pausar con la tecla p ademas se
-puede tomar una captura de pantalla con la tecla s. EN la simulacionLos se usan
-dos tipos de carros, los del tipo 1 son los que solo se mueven en direccion
-vertical y los de tipo 2 se mueven solo en direccion horizontal. Se permite
-tambien agregar vehiculos presionando con el mouse la posicion a la que se
-desea agregar.
+puede tomar una captura de pantalla con la tecla s, si se presiona la tecla c
+se limpia el tablero y si se presiona la tecla e la configuracion del tablero
+se guarda en un archivo de texto. En la simulacionLos se usan dos tipos de
+carros, los del tipo 1 son los que solo se mueven en direccion vertical y los
+de tipo 2 se mueven solo en direccion horizontal. Se permite tambien agregar
+vehiculos presionando con el mouse la posicion a la que se desea agregar. El
+programa tambien permite cargar configuraciones para el tablero desde un
+archivo de texto.
 
 Los colores disponibles son:
     - WHITE
@@ -119,7 +120,10 @@ Los colores disponibles son:
     parser = ArgumentParser(formatter_class=RawDescriptionHelpFormatter,
                             epilog=epilog)
 
-    parser.add_argument('-f', '--filename', default='bihamlevine',
+    parser.add_argument('-f', '--filename', default=None,
+                        help='''Archivo con la configuracion
+                        inicial del tablero''')
+    parser.add_argument('-o', '--output', default='bihamlevine',
                         dest='name', help='''nombre con el que se guarda la
                         captura de pantalla(si se hace)''')
     parser.add_argument('-w', '--width', type=int, default=10,
@@ -171,7 +175,8 @@ Los colores disponibles son:
 
     colors = {1: args.color1, 2: args.color2, 0: args.street_color}
 
-    bihamlevine = BihamLevine(args.name, args.width, args.height, colors)
+    bihamlevine = BihamLevine(args.name, args.width, args.height, colors,
+                              filename=args.filename)
     bihamlevine.putVerticalCar(args.n1)
     bihamlevine.putHorizontalCar(args.n2)
 
