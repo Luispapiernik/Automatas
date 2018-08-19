@@ -1,11 +1,16 @@
 ### Modelo Biham Middleton Levine para trafico vehicular
 
-El programa permite 2 modos de simulacion, el manual en el que se pasa al siguiente
-frame de simulacion mediante la pulsacion de la tecla SPACE y otro en el que se
-fija los frames por segundo, se puede pausar con la tecla p ademas se puede tomar
-una captura de pantalla con la tecla s. En la simulacion se usan dos tipos de
+El programa permite 2 modos de simulacion, el manual en el que se pasa al
+siguiente frame de simulacion mediante la pulsacion de la tecla SPACE y otro en
+el que se fija los frames por segundo, se puede pausar con la tecla p ademas se
+puede tomar una captura de pantalla con la tecla s, si se presiona la tecla c
+se limpia el tablero y si se presiona la tecla e la configuracion del tablero
+se guarda en un archivo de texto. En la simulacionLos se usan dos tipos de
 carros, los del tipo 1 son los que solo se mueven en direccion vertical y los
-de tipo 2 se mueven solo en direccion horizontal.
+de tipo 2 se mueven solo en direccion horizontal. Se permite tambien agregar
+vehiculos presionando con el mouse la posicion a la que se desea agregar. El
+programa tambien permite cargar configuraciones para el tablero desde un
+archivo de texto.
 
 Los colores disponibles son:
 
