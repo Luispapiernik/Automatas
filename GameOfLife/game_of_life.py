@@ -133,7 +133,7 @@ Los colores disponibles son:
     parser.add_argument('-sbc', '--separation-between-cells', type=int,
                         default=1, dest='sbc',
                         help='separacion entre las celdas(celulas)')
-    parser.add_argument('-a', '--alives', type=int, default=10,
+    parser.add_argument('-a', '--alives', type=int, default=0,
                         help='numero de celulas vivas')
     parser.add_argument('-bc', '--background-color', type=lambda x: x.upper(),
                         metavar='COLOR', default='BLACK',
