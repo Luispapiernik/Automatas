@@ -62,9 +62,9 @@ class BihamLevine(System):
             if isinstance(zero, int):
                 for i in range(self.height):
                     row = (zero - i) % self.height
-                    if (self.matrix[row][column] == 1 and
-                            self.matrix[(row + 1) % self.height][column] == 0):
-                        self.matrix[(row + 1) % self.height][column] = 1
+                    if (self.matrix[row][column] == 1 and self.matrix[(row + 1) % self.height][column] == 0):
+                        self.matrix[(row + 1) %
+                                    self.height][column] = 1
                         self.matrix[row][column] = 0
 
     def updateHorizontal(self):
@@ -93,7 +93,7 @@ siguiente frame de simulacion mediante la pulsacion de la tecla SPACE y otro en
 el que se fija los frames por segundo, se puede pausar con la tecla p ademas se
 puede tomar una captura de pantalla con la tecla s, si se presiona la tecla c
 se limpia el tablero y si se presiona la tecla e la configuracion del tablero
-se guarda en un archivo de texto. En la simulacionLos se usan dos tipos de
+se guarda en un archivo de texto. En la simulacion se usan dos tipos de
 carros, los del tipo 1 son los que solo se mueven en direccion vertical y los
 de tipo 2 se mueven solo en direccion horizontal. Se permite tambien agregar
 vehiculos presionando con el mouse la posicion a la que se desea agregar. El
