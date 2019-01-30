@@ -17,34 +17,26 @@ class BihamLevine(System):
         else:
             matrix = [[0] * width for i in range(height)]
 
-        super(BihamLevine, self).__init__(matrix, colors, name)
+        super(BihamLevine, self).__init__(matrix, colors, name=name,
+                                          possibleValues=[0, 1, 2])
 
         self.turn = 0
 
-    def putVerticalCar(self, number):
+    def __putCars(self, number, tp):
+        """tipo 1 para vertical, tipo 2 para horizontal"""
         ready = number
         while ready != 0:
             i = randint(0, self.height - 1)
             j = randint(0, self.width - 1)
 
             if not self.matrix[i][j]:
-                self.matrix[i][j] = 1
-                ready -= 1
-
-    def putHorizontalCar(self, number):
-        ready = number
-        while ready != 0:
-            i = randint(0, self.height - 1)
-            j = randint(0, self.width - 1)
-
-            if not self.matrix[i][j]:
-                self.matrix[i][j] = 2
+                self.matrix[i][j] = tp
                 ready -= 1
 
     def putCars(self, vertical=0, horizontal=0):
         if vertical + horizontal <= self.width * self.height:
-            self.putVerticalCar(vertical)
-            self.putHorizontalCar(horizontal)
+            self.__putCars(vertical, 1)
+            self.__putCars(horizontal, 2)
 
     def findCeroFromColumn(self, column):
         for i in range(self.height):
@@ -62,9 +54,9 @@ class BihamLevine(System):
             if isinstance(zero, int):
                 for i in range(self.height):
                     row = (zero - i) % self.height
-                    if (self.matrix[row][column] == 1 and self.matrix[(row + 1) % self.height][column] == 0):
-                        self.matrix[(row + 1) %
-                                    self.height][column] = 1
+                    if (self.matrix[row][column] == 1 and
+                            self.matrix[(row + 1) % self.height][column] == 0):
+                        self.matrix[(row + 1) % self.height][column] = 1
                         self.matrix[row][column] = 0
 
     def updateHorizontal(self):
@@ -84,6 +76,24 @@ class BihamLevine(System):
             self.updateVertical()
         else:
             self.updateHorizontal()
+
+
+def validateColor(color):
+    if len(color) == 3:
+        return all(map(lambda x: isinstance(x, int) and 0 <= x <= 255, color))
+    return False
+
+
+def parseColor(string):
+    if string.isalpha():
+        return COLORS.get(string.upper(), (0, 0, 0))
+
+    color = [filter(lambda x: x.isdigit(), num) for num in string.split()]
+    color = tuple(map(int, color))
+    if validateColor(color):
+        return color
+
+    return (0, 0, 0)
 
 
 def main():
@@ -128,7 +138,7 @@ Los colores disponibles son:
                         captura de pantalla(si se hace)''')
     parser.add_argument('-w', '--width', type=int, default=10,
                         help='ancho de la calle')
-    parser.add_argument('--height', type=int, default=10,
+    parser.add_argument('-ht', '--height', type=int, default=10,
                         help='largo de la calle')
     parser.add_argument('-mw', '--margin-width', type=int, default=0,
                         help='largo de la margen horizontal')
@@ -147,22 +157,18 @@ Los colores disponibles son:
     parser.add_argument('-n2', '--number-cars-type-two', type=int, default=10,
                         help='numero de carros de tipo 2',
                         dest='n2')
-    parser.add_argument('-bc', '--background-color', type=lambda x: x.upper(),
-                        metavar='COLOR', default='BLACK',
-                        choices=COLORS.keys(),
+    parser.add_argument('-bc', '--background-color', type=parseColor,
+                        metavar='{COLOR, "R G B"}', default='BLACK',
                         help='color de fondo, es el mismo que el de la margen')
-    parser.add_argument('-sc', '--street-color', type=lambda x: x.upper(),
-                        metavar='COLOR', default='WHITE',
-                        choices=COLORS.keys(),
+    parser.add_argument('-sc', '--street-color', type=parseColor,
+                        metavar='{COLOR, "R G B"}', default='WHITE',
                         help='color de fondo de la calle')
-    parser.add_argument('-c1', '--car-color-type-one',
-                        type=lambda x: x.upper(), metavar='COLOR',
-                        default='RED', choices=COLORS.keys(), dest='color1',
-                        help='color del carro de tipo 1')
-    parser.add_argument('-c2', '--car-color-type-two',
-                        type=lambda x: x.upper(), metavar='COLOR',
-                        default='GREEN', choices=COLORS.keys(), dest='color2',
-                        help='color del carro de tipo 2')
+    parser.add_argument('-c1', '--car-color-type-one', type=parseColor,
+                        metavar='{COLOR, "R G B"}', default='RED',
+                        dest='color1', help='color del carro de tipo 1')
+    parser.add_argument('-c2', '--car-color-type-two', type=parseColor,
+                        metavar='{COLOR, "R G B"}', default='GREEN',
+                        dest='color2', help='color del carro de tipo 2')
     parser.add_argument('-m', '--manual', action='store_true',
                         help='''si este argumento es pasado la simulaion se
                         debe actualizar manualment presionando la tecla
@@ -177,8 +183,8 @@ Los colores disponibles son:
 
     bihamlevine = BihamLevine(args.name, args.width, args.height, colors,
                               filename=args.filename)
-    bihamlevine.putVerticalCar(args.n1)
-    bihamlevine.putHorizontalCar(args.n2)
+    bihamlevine.putCars(vertical=args.n1)
+    bihamlevine.putCars(horizontal=args.n2)
 
     graph = CellGraph(bihamlevine, cellwidth=args.cell_width, fps=args.fps,
                       cellheight=args.cell_height,

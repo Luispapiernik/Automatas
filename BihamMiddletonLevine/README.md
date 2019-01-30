@@ -79,7 +79,7 @@ optional arguments:
    
 ## Pruebas:
 
-python biham_milddleton_levine.py --street-color black -bc WHITE -cw 20 -ch 20 -mw 30 -mh 30 --car-color-type-one yellow -c2 red
+python biham_milddleton_levine.py --street-color "0 0 0" -bc WHITE -cw 20 -ch 20 -mw 30 -mh 30 --car-color-type-one yellow -c2 red
 
 ![](https://github.com/Luispapiernik/Automatas/blob/master/BihamMiddletonLevine/Images/prueba1.png)
 
