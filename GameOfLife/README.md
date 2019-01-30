@@ -80,3 +80,8 @@ optional arguments:
 python game_of_life.py -w 50 --height 50 -a 500 -cw 10 -ch 10 -mw 30 -mh 30
 
 ![](https://github.com/Luispapiernik/Automatas/blob/master/GameOfLife/Images/gameoflife.png)
+
+
+python game_of_life.py -w 50 --height 50 -a 500 -cw 10 -ch 10 -mw 30 -mh 30 -bc black -ca BLACK -cd "255 0 0"
+
+![](https://github.com/Luispapiernik/Automatas/blob/master/GameOfLife/Images/gameoflife0.png)
