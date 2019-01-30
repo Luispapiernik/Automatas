@@ -30,21 +30,25 @@ Los colores disponibles son:
 
 usage:
 
-    game_of_life.py [-h] [-f NAME] [-w WIDTH] [--height HEIGHT]
+    game_of_life.py [-h] [-f FILENAME] [-o NAME] [-w WIDTH] [-ht HEIGHT]
                        [-mw MARGIN_WIDTH] [-mh MARGIN_HEIGHT] [-cw CELL_WIDTH]
-                       [-ch CELL_HEIGHT] [-sbc SBC] [-a ALIVES] [-bc COLOR]
-                       [-c1 COLOR] [-c2 COLOR] [-m] [-fps FPS]
+                       [-ch CELL_HEIGHT] [-sbc SBC] [-a ALIVES]
+                       [-bc {COLOR, "R G B"}] [-ca {COLOR, "R G B"}]
+                       [-cd {COLOR, "R G B"}] [-m] [-fps FPS]
 
 
 optional arguments:
 
     -h, --help            show this help message and exit
-    -f NAME, --filename NAME
+    -f FILENAME, --filename FILENAME
+                        Archivo con la configuracion inicial del tablero
+    -o NAME, --output NAME
                         nombre con el que se guarda la captura de pantalla(si
                         se hace)
     -w WIDTH, --width WIDTH
                         numero de celdas horizontales
-    --height HEIGHT       numero de celdas verticales
+    -ht HEIGHT, --height HEIGHT
+                        numero de celdas verticales
     -mw MARGIN_WIDTH, --margin-width MARGIN_WIDTH
                         largo de la margen horizontal
     -mh MARGIN_HEIGHT, --margin-height MARGIN_HEIGHT
@@ -57,14 +61,14 @@ optional arguments:
                         separacion entre las celdas(celulas)
     -a ALIVES, --alives ALIVES
                         numero de celulas vivas
-    -bc COLOR, --background-color COLOR
+    -bc {COLOR, "R G B"}, --background-color {COLOR, "R G B"}
                         color de fondo, es el mismo que el de la margen y la
                         separacion entre celdas
-    -c1 COLOR, --color-alive COLOR
+    -ca {COLOR, "R G B"}, --color-alive {COLOR, "R G B"}
                         color de celulas vivas
-    -c2 COLOR, --color-death COLOR
+    -cd {COLOR, "R G B"}, --color-death {COLOR, "R G B"}
                         color celulas muertas
-    -m, --manual          si este argumento es pasado la simulaion se debe
+    -m, --manual          si este argumento es pasado la simulacion se debe
                         actualizar manualmente presionando la tecla SPACE
     -fps FPS, --frame-per-seconds FPS
                         frames por segundo la simulacion corre automaticamente
