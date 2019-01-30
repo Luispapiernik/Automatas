@@ -22,22 +22,31 @@ def setEvents():
 
 
 class System(object):
-    def __init__(self, matrix, colors, name='system', nullCell=0, clear=True,
-                 export=True, add=True):
-        self.width = len(matrix[0])
-        self.height = len(matrix)
+    def __init__(self, matrix, colors, possibleValues=[], name='system',
+                 nullCell=0, clear=True, export=True, add=True, width=0,
+                 height=0):
+        """matrix representa el sistema cada numero en la matrix representa un
+           color. Colors es un diccionario con numeros como claves y tuplas en
+           formato (R, G, B) como valor, possibleValues son los posibles
+           valores que hay en la matrix. name es el nombre del sistema.
+           nullCell es un entero que representa a una celda en la que no hay
+           nada. clear, export, add se usa para activar dichas funciones"""
+        self.width = width or len(matrix[0])
+        self.height = height or len(matrix)
         self.nullCell = nullCell
         self.colors = colors
         self.matrix = matrix
+        self.possibleValues = possibleValues
+        self.lenValues = len(self.possibleValues)
         self.name = name
-        self.event = {'keydown': [], 'keyup': [], 'mousebuttondown': [],
-                      'mousebuttonup': []}
+        self.events = {'keydown': [], 'keyup': [], 'mousebuttondown': [],
+                       'mousebuttonup': [], 'mousemotion': []}
         if clear:
-            self.event['keydown'].append(self.clear)
+            self.events['keydown'].append(self.clear)
         if export:
-            self.event['keydown'].append(self.export)
+            self.events['keydown'].append(self.export)
         if add:
-            self.event['mousebuttondown'].append(self.add)
+            self.events['mousebuttondown'].append(self.add)
 
     def getMatrixFromFile(self, filename):
         matrix = []
@@ -76,27 +85,40 @@ class System(object):
                     fichero.write(''.join(list(map(str, line))) + '\n')
             print('Text saved')
 
-    def add(self, pos, _):
-        """agrega celulas al tablero"""
-        if 0 <= pos[0] < self.width and 0 <= pos[1] < self.height:
-            self.matrix[pos[1]][pos[0]] += 1
-            self.matrix[pos[1]][pos[0]] %= 3
+    def add(self, pos, _, added=None):
+        """agrega celulas al tablero y retorna el valor agregado en caso de no
+           pasar una valor a ser agregado"""
+        x, y = pos
+        if 0 <= x < self.width and 0 <= y < self.height:
+            # added in self.possibleValues
+            if isinstance(added, int):
+                value = self.matrix[y][x]
+                self.matrix[y][x] = added
+                return value
 
-    def mouseButtonDown(self, pos, event):
-        for function in self.event['mousebuttondown']:
-            function(pos, event)
-
-    def mouseButtonUp(self, pos, event):
-        for function in self.event['mousebuttonup']:
-            function(pos, event)
+            ind = self.possibleValues.index(self.matrix[y][x])
+            self.matrix[y][x] = self.possibleValues[(ind + 1) % self.lenValues]
+            return self.matrix[y][x]
 
     def keyDown(self, key):
-        for function in self.event['keydown']:
+        for function in self.events['keydown']:
             function(key)
 
     def keyUp(self, key):
-        for function in self.event['keyup']:
+        for function in self.events['keyup']:
             function(key)
+
+    def mouseButtonDown(self, pos, event):
+        for function in self.events['mousebuttondown']:
+            function(pos, event)
+
+    def mouseButtonUp(self, pos, event):
+        for function in self.events['mousebuttonup']:
+            function(pos, event)
+
+    def mouseMotion(self, pos, event):
+        for function in self.events['mousemotion']:
+            function(pos, event)
 
     def update(self):
         """Se debe implementar en las clases que heredan"""
@@ -107,10 +129,10 @@ class CellGraph(object):
     """docstring for CellGraph"""
 
     def __init__(self, system, margin_width=0, margin_height=0,
-                 background_color='BLACK', cellwidth=5, cellheight=5, fps=60,
+                 background_color=(0, 0, 0), cellwidth=5, cellheight=5, fps=60,
                  separation_between_cells=1):
         self.separation_between_cells = separation_between_cells
-        self.background_color = COLORS[background_color]
+        self.background_color = background_color
         self.margin_height = margin_height
         self.margin_width = margin_width
         self.cellheight = cellheight
@@ -124,6 +146,7 @@ class CellGraph(object):
             separation_between_cells * (system.height - 1)
 
     def getPositionInMatrix(self, pos):
+        """dada la posicion de la pantalla retorna la posicion en la matrix"""
         posx = pos[0] - self.margin_height
         posy = pos[1] - self.margin_width
         posx = posx / (self.cellwidth + self.separation_between_cells)
@@ -131,10 +154,11 @@ class CellGraph(object):
         return int(posx), int(posy)
 
     def draw(self, screen):
+        """dibuja el sistema en pantalla"""
         screen.fill(self.background_color)
         for i in range(self.system.height):
             for j in range(self.system.width):
-                p.draw.rect(screen, COLORS[self.system.getColor(i, j)],
+                p.draw.rect(screen, self.system.getColor(i, j),
                             p.Rect(self.margin_width + j * self.cellwidth +
                                    (j * self.separation_between_cells),
                                    self.margin_height + i * self.cellheight +
@@ -143,7 +167,10 @@ class CellGraph(object):
 
     def reload(self, screen):
         self.draw(screen)
-        p.display.set_caption(self.system.getCaption())
+        if self.pause:
+            p.display.set_caption(self.system.getCaption() + ' Pause')
+        else:
+            p.display.set_caption(self.system.getCaption())
         p.display.update()
 
     def eventManager(self, screen):
@@ -163,18 +190,17 @@ class CellGraph(object):
                     p.image.save(screen, self.system.getName())
                     print('Saved image')
                 self.system.keyDown(p.key.name(event.key))
-                self.reload(screen)
             if event.type == p.MOUSEBUTTONDOWN:
                 self.system.mouseButtonDown(
                     self.getPositionInMatrix(event.pos), event)
-                self.reload(screen)
             if event.type == p.KEYUP:
                 self.system.keyUp(event)
-                self.reload(screen)
             if event.type == p.MOUSEBUTTONUP:
                 self.system.mouseButtonUp(
                     self.getPositionInMatrix(event.pos), event)
-                self.reload(screen)
+            if event.type == p.MOUSEMOTION:
+                self.system.mouseMotion(
+                    self.getPositionInMatrix(event.pos), event)
 
         return quit, pause
 
@@ -187,7 +213,7 @@ class CellGraph(object):
         clock = p.time.Clock()
 
         quit = False
-        pause = False
+        self.pause = True
 
         self.reload(screen)
 
@@ -197,25 +223,28 @@ class CellGraph(object):
             quit, temp = self.eventManager(screen)
 
             if temp:
-                pause = not pause
+                self.pause = not self.pause
 
-            if not pause and not quit:
+            if not self.pause and not quit:
                 self.system.update()
-                self.reload(screen)
+
+            self.reload(screen)
 
         while not quit and manual:
-            clock.tick(20)
-
-            quit, pause = self.eventManager(screen)
-            pause = not pause
-
-            if p.key.get_pressed()[pl.K_SPACE]:
-                pause = False
-
-            if not pause and not quit:
-                pause = True
-                self.system.update()
+            pause = False
+            while not pause and not quit:
+                clock.tick(10)
+                quit, pause = self.eventManager(screen)
                 self.reload(screen)
+
+                if p.key.get_pressed()[pl.K_SPACE]:
+                    pause = True
+
+            if pause and not quit:
+                self.pause = True
+                self.system.update()
+
+            self.reload(screen)
 
 
 def test():
