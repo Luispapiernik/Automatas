@@ -1,22 +1,42 @@
+from __future__ import division
+
 from cellgraph import CellGraph, System, COLORS
 from random import randint, random
 
 
 class NagelSchreckenberg(System):
-    """1: (1, 0), 2: (0, 1), 3: (-1, 0), 4: (0, -1) directions"""
+    """1: (1, 0), 2: (0, 1), 3: (-1, 0), 4: (0, -1) directions,
+       un carro sera representado por una lista (velocidad, direccion)"""
 
-    def __init__(self, name, width, height, colors, filename=None, vmax=5,
+    def __init__(self, name, colors, width=0, height=0, filename=None, vmax=5,
                  breakProbability=0.5, turnProbability=0.5):
         if filename:
-            matrix = self.getMatrixFromFile(filename)
+            matrix, width, height = self.getMatrixFromFile(filename)
         else:
-            matrix = [[[-1, -1]] * width for i in range(height)]
+            matrix = [[[0, 0]] * width for i in range(height)]
 
-        super(NagelSchreckenberg, self).__init__(matrix, colors, name,
-                                                 nullCell=-1)
+        super(NagelSchreckenberg, self).__init__(matrix, colors, width=width,
+                                                 height=height)
+
         self.turnProbability = turnProbability
         self.breakProbability = breakProbability
         self.vmax = vmax
+
+    def getMatrixFromFile(self, filename):
+        """en el se especifica la velocidad del carro y al lado su direccion"""
+
+        matrix = super(NagelSchreckenberg, self).getMatrixFromFile(filename)
+
+        width = len(matrix[0])
+        height = len(matrix)
+
+        output = [[0] * (width // 2) for i in range(height)]
+
+        for i in range(height):
+            for j in range(0, width, 2):
+                output[i][j // 2] = matrix[i][j:j + 2]
+
+        return output, width // 2, height
 
     def getColor(self, i, j):
         return self.colors.get(self.matrix[i][j][0], 'BLACK')
@@ -27,7 +47,7 @@ class NagelSchreckenberg(System):
             i = randint(0, self.height - 1)
             j = randint(0, self.width - 1)
 
-            if self.matrix[i][j] == [-1 ,-1]:
+            if self.matrix[i][j] == [-1, -1]:
                 self.matrix[i][j] = [randint(0, self.vmax), 4]
                 ready -= 1
 
@@ -37,7 +57,7 @@ class NagelSchreckenberg(System):
             i = randint(0, self.height - 1)
             j = randint(0, self.width - 1)
 
-            if self.matrix[i][j] == [-1 ,-1]:
+            if self.matrix[i][j] == [-1, -1]:
                 self.matrix[i][j] = [randint(0, self.vmax), 1]
                 ready -= 1
 
@@ -123,13 +143,15 @@ def main():
     colors = {0: 'BLACK', 1: 'RED', 2: 'BLUE', 3: 'YELLOW', 4: 'ORANGE',
               -1: 'WHITE'}
 
-    nagel = NagelSchreckenberg('nagel', 50, 50, colors, vmax=4)
+    nagel = NagelSchreckenberg('nagel', colors, filename='prueba.txt', vmax=4)
 
-    nagel.putCars(20, 20)
+    print(nagel.matrix)
 
-    graph = CellGraph(nagel, fps=20)
+    # nagel.putCars(20, 20)
 
-    graph.run(True)
+    # graph = CellGraph(nagel, fps=20)
+
+    # graph.run(True)
 
 
 if __name__ == '__main__':
